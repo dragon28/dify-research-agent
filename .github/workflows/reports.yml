@@ -1,0 +1,138 @@
+name: research-reports
+# Runs the whole stack (Dify 1.19.0 + SearXNG + Ollama) on a GitHub-hosted runner,
+# writes reports, opens a PR with them, and publishes the gallery to GitHub Pages.
+# Nothing runs on the owner's computer. Only people with write access can trigger it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      topics:
+        description: "Topics, one per line (max 3)"
+        required: true
+        default: "Open-source tools for nanopore sequencing analysis"
+      model:
+        description: "Ollama model"
+        required: true
+        default: "qwen2.5:7b"
+  push:
+    branches: [master]
+    paths: ["examples/**", "scripts/build_site.py"]
+
+concurrency:
+  group: research-reports
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      DIFY_VERSION: "1.19.0"
+      MODEL: ${{ inputs.model }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -af >/dev/null
+          df -h / | tail -1
+
+      - name: Fetch Dify ${{ env.DIFY_VERSION }}
+        run: git clone -q --depth 1 -b "$DIFY_VERSION" https://github.com/langgenius/dify.git ../dify
+
+      - name: Configure Dify (fixes found during local testing)
+        working-directory: ../dify/docker
+        run: |
+          cp .env.example .env
+          rnd() { openssl rand -hex 32; }
+          sed -i "s|^DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN=.*|DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN=$(rnd)|" .env
+          {
+            echo "EXPOSE_NGINX_PORT=127.0.0.1:80"
+            echo "EXPOSE_NGINX_SSL_PORT=127.0.0.1:443"
+            echo "SSRF_PROXY_ALLOW_PRIVATE_DOMAINS=searxng"
+            echo "SEARXNG_SECRET=$(rnd)"
+            echo "RESEARCH_AGENT_DIR=$GITHUB_WORKSPACE"
+          } >> .env
+          cp "$GITHUB_WORKSPACE/infra/docker-compose.override.yml" .
+          sed -i 's|,Z$||' docker-compose.override.yml   # no SELinux on Ubuntu runners
+          mkdir -p volumes/plugin_daemon && sudo chown -R 1001:1001 volumes/plugin_daemon
+
+      - name: Start stack
+        working-directory: ../dify/docker
+        run: |
+          docker compose -f docker-compose.yaml -f docker-compose.override.yml up -d --quiet-pull
+          for i in $(seq 90); do curl -fs localhost/console/api/setup >/dev/null && break; sleep 5; done
+          for i in $(seq 30); do curl -fs "localhost:8080/search?q=test&format=json" >/dev/null && break; sleep 3; done
+          curl -fs "localhost:8080/search?q=test&format=json" | head -c 200; echo
+
+      - name: Pull model
+        run: docker exec docker-ollama-1 ollama pull "$MODEL"
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Bootstrap Dify (random throwaway admin, import + publish workflow)
+        run: uv run python scripts/ci_bootstrap.py --model "$MODEL"
+
+      - name: Generate reports
+        env:
+          TOPICS: ${{ inputs.topics }}
+          REPORT_DIR: examples
+          RUNNER_LABEL: github-actions ubuntu-latest (CPU)
+        run: |
+          n=0
+          while IFS= read -r t; do
+            t="$(echo "$t" | tr -d '\r' | xargs)"; [ -z "$t" ] && continue
+            n=$((n+1)); [ $n -gt 3 ] && break
+            timeout 40m uv run python scripts/run_report.py "$t"
+          done <<< "$TOPICS"
+
+      - name: Dump logs on failure
+        if: failure()
+        working-directory: ../dify/docker
+        run: docker compose -f docker-compose.yaml -f docker-compose.override.yml logs --tail 200 api worker plugin_daemon ssrf_proxy searxng ollama > "$GITHUB_WORKSPACE/compose.log" 2>&1 || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: run-${{ github.run_id }}
+          path: |
+            examples/
+            compose.log
+          if-no-files-found: ignore
+
+      - name: Open PR with new reports
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: reports/run-${{ github.run_id }}
+          add-paths: examples/
+          commit-message: "Add research reports from Actions run ${{ github.run_id }}"
+          title: "New research reports (run ${{ github.run_id }})"
+          body: "Generated on GitHub Actions with model `${{ inputs.model }}`. Review before merging; merging publishes them to GitHub Pages."
+
+  pages:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv run --no-project --with markdown-it-py python scripts/build_site.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

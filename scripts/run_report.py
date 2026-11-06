@@ -37,6 +37,8 @@ if not final or final.get("status") != "succeeded":
 out = final["outputs"]
 stats = json.loads(out.get("stats") or "{}")
 stats["seconds"] = round(time.time() - t0)
+stats["model"] = os.environ.get("MODEL", "qwen2.5:7b")
+stats["runner"] = os.environ.get("RUNNER_LABEL", "local")
 if not stats.get("sources_total"):
     sys.exit(f"no sources retrieved - is SearXNG reachable from Dify? stats={stats}")
 slug = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")[:60]
