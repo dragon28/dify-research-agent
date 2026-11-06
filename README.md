@@ -1,7 +1,9 @@
 # Dify Research Agent
 
-> Status: the Code-node logic is unit-tested in CI. The full Dify run and the exported
-> workflow file are not done yet.
+> Status: tested end to end on self-hosted Dify 1.19.0 with Ollama qwen2.5:7b.
+> Four example reports are in [examples/](examples/), each took 47-54 s on one machine.
+
+![Workflow](docs/workflow.png)
 
 A multi-step research agent built on Dify. It plans sub-questions, searches with a
 self-hosted SearXNG instance, merges the sources, and writes a cited Markdown report.
@@ -26,9 +28,14 @@ flowchart LR
 2. Copy infra/docker-compose.override.yml into dify/docker/, then run `docker compose up -d`.
 3. Pull the models: `docker exec -it <ollama> ollama pull qwen2.5:7b`
 4. Check search works: `make searx-check` (it should return JSON).
-5. In Dify, add the Ollama provider (http://ollama:11434), build the workflow from
-   dify/WORKFLOW.md (or import research-agent.yml once it is exported), and publish it.
-6. Run `export $(cat .env | xargs)` (after filling in .env), then `make report TOPIC="..."`.
+5. In dify/docker/.env add `SSRF_PROXY_ALLOW_PRIVATE_DOMAINS=searxng` (Dify's SSRF proxy
+   blocks private hosts, so HTTP nodes cannot reach SearXNG without it) and a random
+   `SEARXNG_SECRET`. Restricting nginx to this machine is recommended:
+   `EXPOSE_NGINX_PORT=127.0.0.1:80`.
+6. In Dify, install the Ollama plugin, add model `qwen2.5:7b` (base URL http://ollama:11434,
+   context 16384), then import [dify/research-agent.yml](dify/research-agent.yml) and publish.
+   `scripts/build_dsl.py` regenerates the DSL from the tested Python in research_agent/.
+7. Put the app's API key in .env, then run `make report TOPIC="..."`.
 
 Note: the compose volume path assumes dify/ and dify-research-agent/ are sibling folders.
 
@@ -45,6 +52,10 @@ URL dedupe, source numbering, citation validation). CI runs the same tests.
   can rate-limit.
 - Local 7B models are weaker than hosted models.
 - Needs roughly 12-16 GB of RAM.
-- There is no hosted live demo. Sample reports go in examples/.
+- Reports are written from search-result snippets, not full pages, so they are shallow.
+- The 7B model does not cite every source it receives (for example only 5 of 12 in the nanopore report).
+- If the plugin install fails with `mkdir /app/storage/assets: permission denied`, run
+  `docker exec -u 0 docker-plugin_daemon-1 chown -R 1001:1001 /app/storage`.
+- There is no hosted live demo, because it needs a GPU or CPU box running Dify. See examples/.
 
 Licences: Dify (modified Apache-2.0), SearXNG (AGPL-3.0), Ollama (MIT).

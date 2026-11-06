@@ -1,0 +1,856 @@
+app:
+  description: Plan -> SearXNG search (iteration) + Wikipedia (parallel) -> cited
+    Markdown report with citation validation.
+  icon: 🔎
+  icon_background: '#E0F2FE'
+  icon_type: emoji
+  mode: workflow
+  name: Deep Research Agent
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/ollama:1.0.3@1086758302d98263d5b7881de8ba95fc219351fdf97831d18a7807378674d203
+    version: null
+kind: app
+site:
+  chat_color_theme: null
+  chat_color_theme_inverted: false
+  copyright: null
+  custom_disclaimer: ''
+  default_language: en-US
+  description: null
+  icon: 🔎
+  icon_background: '#E0F2FE'
+  icon_type: emoji
+  input_placeholder: null
+  privacy_policy: null
+  show_workflow_steps: true
+  title: Deep Research Agent
+  use_icon_as_answer_icon: false
+version: 0.7.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload: {}
+    sensitive_word_avoidance:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: start-planner
+      source: start
+      sourceHandle: source
+      target: planner
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: http-request
+      id: start-wiki
+      source: start
+      sourceHandle: source
+      target: wiki
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: planner-parse
+      source: planner
+      sourceHandle: source
+      target: parse
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: iteration
+      id: parse-iter
+      source: parse
+      sourceHandle: source
+      target: iter
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: iter
+        sourceType: iteration-start
+        targetType: http-request
+      id: iterstart-search
+      source: iterstart
+      sourceHandle: source
+      target: search
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: iter
+        sourceType: http-request
+        targetType: code
+      id: search-pick
+      source: search
+      sourceHandle: source
+      target: pick
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: iteration
+        targetType: code
+      id: iter-registry
+      source: iter
+      sourceHandle: source
+      target: registry
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: wiki-registry
+      source: wiki
+      sourceHandle: source
+      target: registry
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: registry-writer
+      source: registry
+      sourceHandle: source
+      target: writer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: writer-validate
+      source: writer
+      sourceHandle: source
+      target: validate
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: validate-end
+      source: validate
+      sourceHandle: source
+      target: end
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: topic
+          max_length: 500
+          options: []
+          required: true
+          type: paragraph
+          variable: topic
+        - label: depth (3-5)
+          options: []
+          required: false
+          type: number
+          variable: depth
+      height: 90
+      id: start
+      position:
+        x: 0
+        y: 300
+      positionAbsolute:
+        x: 0
+        y: 300
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory: null
+        model:
+          completion_params:
+            num_ctx: 16384
+            temperature: 0.2
+          mode: chat
+          name: qwen2.5:7b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - role: system
+          text: You plan web research. Reply with ONLY a JSON array of short search-engine
+            queries (strings). No prose.
+        - role: user
+          text: 'Topic: {{#start.topic#}}
+
+            Write {{#start.depth#}} (default 4) distinct search queries that together
+            cover background, current state, key players or tools, and open problems.'
+        selected: false
+        title: Planner
+        type: llm
+        vision:
+          enabled: false
+      height: 90
+      id: planner
+      position:
+        x: 300
+        y: 200
+      positionAbsolute:
+        x: 300
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
+          \ function mirrors one Code node. Keep them dependency-free so the\nsame\
+          \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
+          \nimport json\nimport re\nfrom urllib.parse import parse_qsl, urlencode,\
+          \ urlsplit, urlunsplit\n\nTRACKING = {\"utm_source\", \"utm_medium\", \"\
+          utm_campaign\", \"utm_term\", \"utm_content\",\n            \"fbclid\",\
+          \ \"gclid\", \"ref\"}\n\n\ndef parse_plan(llm_text: str, topic: str, max_q:\
+          \ int = 5) -> list[str]:\n    \"\"\"Parse planner output into sub-questions;\
+          \ fall back to the topic itself.\"\"\"\n    m = re.search(r\"\\[.*\\]\"\
+          , llm_text or \"\", re.DOTALL)\n    qs: list[str] = []\n    if m:\n    \
+          \    try:\n            data = json.loads(m.group(0))\n            qs = [str(q).strip()\
+          \ for q in data if str(q).strip()]\n        except json.JSONDecodeError:\n\
+          \            qs = []\n    if not qs:\n        qs = [ln.strip(\" -*0123456789.\"\
+          ).strip() for ln in (llm_text or \"\").splitlines()]\n        qs = [q for\
+          \ q in qs if q.endswith(\"?\")]\n    seen, out = set(), []\n    for q in\
+          \ qs:\n        if q.lower() not in seen:\n            seen.add(q.lower());\
+          \ out.append(q)\n    return out[:max_q] or [topic]\n\n\ndef normalize_url(url:\
+          \ str) -> str:\n    p = urlsplit(url.strip())\n    query = urlencode([(k,\
+          \ v) for k, v in parse_qsl(p.query) if k.lower() not in TRACKING])\n   \
+          \ host = p.netloc.lower().removeprefix(\"www.\")\n    path = p.path.rstrip(\"\
+          /\") or \"/\"\n    return urlunsplit((\"https\" if p.scheme in (\"http\"\
+          , \"https\") else p.scheme, host, path, query, \"\"))\n\n\ndef pick_results(searxng_json:\
+          \ str | dict, k: int = 3) -> list[dict]:\n    \"\"\"Take a SearXNG /search?format=json\
+          \ response, dedupe, keep top k.\"\"\"\n    data = json.loads(searxng_json)\
+          \ if isinstance(searxng_json, str) else searxng_json\n    out, seen = [],\
+          \ set()\n    for r in data.get(\"results\", []):\n        url = r.get(\"\
+          url\")\n        if not url or not url.startswith((\"http://\", \"https://\"\
+          )):\n            continue\n        key = normalize_url(url)\n        if\
+          \ key in seen:\n            continue\n        seen.add(key)\n        out.append({\"\
+          title\": r.get(\"title\", \"\").strip(), \"url\": url,\n               \
+          \     \"snippet\": (r.get(\"content\") or \"\").strip()[:500]})\n      \
+          \  if len(out) >= k:\n            break\n    return out\n\n\ndef build_registry(per_question:\
+          \ list[list[dict]]) -> list[dict]:\n    \"\"\"Merge results from all sub-questions\
+          \ into one numbered source list.\"\"\"\n    reg, index = [], {}\n    for\
+          \ results in per_question:\n        for r in results:\n            key =\
+          \ normalize_url(r[\"url\"])\n            if key not in index:\n        \
+          \        index[key] = len(reg) + 1\n                reg.append({\"id\":\
+          \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
+          \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
+          \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
+          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
+          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
+          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \ report stats.\n\n    Checks citation integrity only - not whether the\
+          \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
+          \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
+          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
+          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
+          \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
+          \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
+          \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
+          \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
+          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
+          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
+          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
+          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
+          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
+          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
+          : len(reg)}\n\n\ndef main(text: str, topic: str, depth=None) -> dict:\n\
+          \    n = int(depth) if depth else 4\n    return {\"questions\": parse_plan(text,\
+          \ topic, max(3, min(n, 5)))}\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          questions:
+            children: null
+            type: array[string]
+        selected: false
+        title: Parse plan
+        type: code
+        variables:
+        - value_selector:
+          - planner
+          - text
+          variable: text
+        - value_selector:
+          - start
+          - topic
+          variable: topic
+        - value_selector:
+          - start
+          - depth
+          variable: depth
+      height: 90
+      id: parse
+      position:
+        x: 600
+        y: 200
+      positionAbsolute:
+        x: 600
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        error_handle_mode: continue-on-error
+        height: 200
+        is_parallel: true
+        iterator_input_type: array[string]
+        iterator_selector:
+        - parse
+        - questions
+        output_selector:
+        - pick
+        - results_json
+        output_type: array[string]
+        parallel_nums: 3
+        selected: false
+        start_node_id: iterstart
+        title: Search each question
+        type: iteration
+        width: 640
+      height: 200
+      id: iter
+      position:
+        x: 900
+        y: 150
+      positionAbsolute:
+        x: 900
+        y: 150
+      type: custom
+      width: 640
+      zIndex: 1
+    - data:
+        desc: ''
+        isInIteration: true
+        selected: false
+        title: ''
+        type: iteration-start
+      draggable: false
+      height: 48
+      id: iterstart
+      parentId: iter
+      position:
+        x: 24
+        y: 68
+      positionAbsolute:
+        x: 924
+        y: 218
+      selectable: false
+      type: custom-iteration-start
+      width: 44
+      zIndex: 1002
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: []
+          type: none
+        default_value:
+        - key: body
+          type: string
+          value: '{"results": []}'
+        - key: status_code
+          type: number
+          value: 0
+        desc: ''
+        error_strategy: default-value
+        headers: ''
+        isInIteration: true
+        isInLoop: false
+        iteration_id: iter
+        method: get
+        params: 'q:{{#iter.item#}}
+
+          format:json'
+        retry_config:
+          enabled: true
+          max_retries: 2
+          retry_interval: 1000
+        selected: false
+        timeout:
+          connect: 10
+          read: 30
+          write: 30
+        title: SearXNG search
+        type: http-request
+        url: http://searxng:8080/search
+      height: 90
+      id: search
+      parentId: iter
+      position:
+        x: 1000
+        y: 230
+      positionAbsolute:
+        x: 1000
+        y: 230
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1002
+    - data:
+        code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
+          \ function mirrors one Code node. Keep them dependency-free so the\nsame\
+          \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
+          \nimport json\nimport re\nfrom urllib.parse import parse_qsl, urlencode,\
+          \ urlsplit, urlunsplit\n\nTRACKING = {\"utm_source\", \"utm_medium\", \"\
+          utm_campaign\", \"utm_term\", \"utm_content\",\n            \"fbclid\",\
+          \ \"gclid\", \"ref\"}\n\n\ndef parse_plan(llm_text: str, topic: str, max_q:\
+          \ int = 5) -> list[str]:\n    \"\"\"Parse planner output into sub-questions;\
+          \ fall back to the topic itself.\"\"\"\n    m = re.search(r\"\\[.*\\]\"\
+          , llm_text or \"\", re.DOTALL)\n    qs: list[str] = []\n    if m:\n    \
+          \    try:\n            data = json.loads(m.group(0))\n            qs = [str(q).strip()\
+          \ for q in data if str(q).strip()]\n        except json.JSONDecodeError:\n\
+          \            qs = []\n    if not qs:\n        qs = [ln.strip(\" -*0123456789.\"\
+          ).strip() for ln in (llm_text or \"\").splitlines()]\n        qs = [q for\
+          \ q in qs if q.endswith(\"?\")]\n    seen, out = set(), []\n    for q in\
+          \ qs:\n        if q.lower() not in seen:\n            seen.add(q.lower());\
+          \ out.append(q)\n    return out[:max_q] or [topic]\n\n\ndef normalize_url(url:\
+          \ str) -> str:\n    p = urlsplit(url.strip())\n    query = urlencode([(k,\
+          \ v) for k, v in parse_qsl(p.query) if k.lower() not in TRACKING])\n   \
+          \ host = p.netloc.lower().removeprefix(\"www.\")\n    path = p.path.rstrip(\"\
+          /\") or \"/\"\n    return urlunsplit((\"https\" if p.scheme in (\"http\"\
+          , \"https\") else p.scheme, host, path, query, \"\"))\n\n\ndef pick_results(searxng_json:\
+          \ str | dict, k: int = 3) -> list[dict]:\n    \"\"\"Take a SearXNG /search?format=json\
+          \ response, dedupe, keep top k.\"\"\"\n    data = json.loads(searxng_json)\
+          \ if isinstance(searxng_json, str) else searxng_json\n    out, seen = [],\
+          \ set()\n    for r in data.get(\"results\", []):\n        url = r.get(\"\
+          url\")\n        if not url or not url.startswith((\"http://\", \"https://\"\
+          )):\n            continue\n        key = normalize_url(url)\n        if\
+          \ key in seen:\n            continue\n        seen.add(key)\n        out.append({\"\
+          title\": r.get(\"title\", \"\").strip(), \"url\": url,\n               \
+          \     \"snippet\": (r.get(\"content\") or \"\").strip()[:500]})\n      \
+          \  if len(out) >= k:\n            break\n    return out\n\n\ndef build_registry(per_question:\
+          \ list[list[dict]]) -> list[dict]:\n    \"\"\"Merge results from all sub-questions\
+          \ into one numbered source list.\"\"\"\n    reg, index = [], {}\n    for\
+          \ results in per_question:\n        for r in results:\n            key =\
+          \ normalize_url(r[\"url\"])\n            if key not in index:\n        \
+          \        index[key] = len(reg) + 1\n                reg.append({\"id\":\
+          \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
+          \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
+          \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
+          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
+          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
+          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \ report stats.\n\n    Checks citation integrity only - not whether the\
+          \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
+          \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
+          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
+          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
+          \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
+          \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
+          \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
+          \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
+          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
+          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
+          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
+          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
+          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
+          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
+          : len(reg)}\n\n\ndef main(body: str) -> dict:\n    try:\n        res = pick_results(body\
+          \ or '{\"results\": []}', k=3)\n    except Exception:\n        res = []\n\
+          \    return {\"results_json\": json.dumps(res)}\n"
+        code_language: python3
+        desc: ''
+        isInIteration: true
+        isInLoop: false
+        iteration_id: iter
+        outputs:
+          results_json:
+            children: null
+            type: string
+        selected: false
+        title: Dedupe + top 3
+        type: code
+        variables:
+        - value_selector:
+          - search
+          - body
+          variable: body
+      height: 90
+      id: pick
+      parentId: iter
+      position:
+        x: 1300
+        y: 230
+      positionAbsolute:
+        x: 1300
+        y: 230
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1002
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: []
+          type: none
+        default_value:
+        - key: body
+          type: string
+          value: '{"results": []}'
+        - key: status_code
+          type: number
+          value: 0
+        desc: ''
+        error_strategy: default-value
+        headers: ''
+        method: get
+        params: 'q:!wp {{#start.topic#}}
+
+          format:json'
+        retry_config:
+          enabled: true
+          max_retries: 2
+          retry_interval: 1000
+        selected: false
+        timeout:
+          connect: 10
+          read: 30
+          write: 30
+        title: Wikipedia via SearXNG (parallel)
+        type: http-request
+        url: http://searxng:8080/search
+      height: 90
+      id: wiki
+      position:
+        x: 900
+        y: 450
+      positionAbsolute:
+        x: 900
+        y: 450
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
+          \ function mirrors one Code node. Keep them dependency-free so the\nsame\
+          \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
+          \nimport json\nimport re\nfrom urllib.parse import parse_qsl, urlencode,\
+          \ urlsplit, urlunsplit\n\nTRACKING = {\"utm_source\", \"utm_medium\", \"\
+          utm_campaign\", \"utm_term\", \"utm_content\",\n            \"fbclid\",\
+          \ \"gclid\", \"ref\"}\n\n\ndef parse_plan(llm_text: str, topic: str, max_q:\
+          \ int = 5) -> list[str]:\n    \"\"\"Parse planner output into sub-questions;\
+          \ fall back to the topic itself.\"\"\"\n    m = re.search(r\"\\[.*\\]\"\
+          , llm_text or \"\", re.DOTALL)\n    qs: list[str] = []\n    if m:\n    \
+          \    try:\n            data = json.loads(m.group(0))\n            qs = [str(q).strip()\
+          \ for q in data if str(q).strip()]\n        except json.JSONDecodeError:\n\
+          \            qs = []\n    if not qs:\n        qs = [ln.strip(\" -*0123456789.\"\
+          ).strip() for ln in (llm_text or \"\").splitlines()]\n        qs = [q for\
+          \ q in qs if q.endswith(\"?\")]\n    seen, out = set(), []\n    for q in\
+          \ qs:\n        if q.lower() not in seen:\n            seen.add(q.lower());\
+          \ out.append(q)\n    return out[:max_q] or [topic]\n\n\ndef normalize_url(url:\
+          \ str) -> str:\n    p = urlsplit(url.strip())\n    query = urlencode([(k,\
+          \ v) for k, v in parse_qsl(p.query) if k.lower() not in TRACKING])\n   \
+          \ host = p.netloc.lower().removeprefix(\"www.\")\n    path = p.path.rstrip(\"\
+          /\") or \"/\"\n    return urlunsplit((\"https\" if p.scheme in (\"http\"\
+          , \"https\") else p.scheme, host, path, query, \"\"))\n\n\ndef pick_results(searxng_json:\
+          \ str | dict, k: int = 3) -> list[dict]:\n    \"\"\"Take a SearXNG /search?format=json\
+          \ response, dedupe, keep top k.\"\"\"\n    data = json.loads(searxng_json)\
+          \ if isinstance(searxng_json, str) else searxng_json\n    out, seen = [],\
+          \ set()\n    for r in data.get(\"results\", []):\n        url = r.get(\"\
+          url\")\n        if not url or not url.startswith((\"http://\", \"https://\"\
+          )):\n            continue\n        key = normalize_url(url)\n        if\
+          \ key in seen:\n            continue\n        seen.add(key)\n        out.append({\"\
+          title\": r.get(\"title\", \"\").strip(), \"url\": url,\n               \
+          \     \"snippet\": (r.get(\"content\") or \"\").strip()[:500]})\n      \
+          \  if len(out) >= k:\n            break\n    return out\n\n\ndef build_registry(per_question:\
+          \ list[list[dict]]) -> list[dict]:\n    \"\"\"Merge results from all sub-questions\
+          \ into one numbered source list.\"\"\"\n    reg, index = [], {}\n    for\
+          \ results in per_question:\n        for r in results:\n            key =\
+          \ normalize_url(r[\"url\"])\n            if key not in index:\n        \
+          \        index[key] = len(reg) + 1\n                reg.append({\"id\":\
+          \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
+          \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
+          \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
+          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
+          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
+          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \ report stats.\n\n    Checks citation integrity only - not whether the\
+          \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
+          \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
+          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
+          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
+          \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
+          \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
+          \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
+          \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
+          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
+          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
+          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
+          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
+          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
+          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
+          : len(reg)}\n\n\ndef main(per_q: list, wiki: str) -> dict:\n    lists =\
+          \ []\n    for s in per_q or []:\n        try:\n            lists.append(json.loads(s)\
+          \ if s else [])\n        except Exception:\n            pass\n    try:\n\
+          \        lists.insert(0, pick_results(wiki or '{\"results\": []}', k=1))\n\
+          \    except Exception:\n        pass\n    reg = build_registry(lists)\n\
+          \    return {\"registry\": json.dumps(reg), \"sources_text\": format_sources(reg)}\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          registry:
+            children: null
+            type: string
+          sources_text:
+            children: null
+            type: string
+        selected: false
+        title: Build source registry
+        type: code
+        variables:
+        - value_selector:
+          - iter
+          - output
+          variable: per_q
+        - value_selector:
+          - wiki
+          - body
+          variable: wiki
+      height: 90
+      id: registry
+      position:
+        x: 1650
+        y: 300
+      positionAbsolute:
+        x: 1650
+        y: 300
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory: null
+        model:
+          completion_params:
+            num_ctx: 16384
+            temperature: 0.2
+          mode: chat
+          name: qwen2.5:7b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - role: system
+          text: You write concise, factual research briefs in Markdown. Use ONLY the
+            numbered sources provided. Cite every factual sentence with [n] matching
+            a source number. Never invent sources, URLs or numbers. If sources are
+            thin, say so.
+        - role: user
+          text: 'Topic: {{#start.topic#}}
+
+
+            Sources:
+
+            {{#registry.sources_text#}}
+
+
+            Write the report with sections: ''# <title>'', ''## Summary'', ''## Findings'',
+            ''## Open questions''. Do not write a References section.'
+        selected: false
+        title: Writer
+        type: llm
+        vision:
+          enabled: false
+      height: 90
+      id: writer
+      position:
+        x: 1950
+        y: 300
+      positionAbsolute:
+        x: 1950
+        y: 300
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
+          \ function mirrors one Code node. Keep them dependency-free so the\nsame\
+          \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
+          \nimport json\nimport re\nfrom urllib.parse import parse_qsl, urlencode,\
+          \ urlsplit, urlunsplit\n\nTRACKING = {\"utm_source\", \"utm_medium\", \"\
+          utm_campaign\", \"utm_term\", \"utm_content\",\n            \"fbclid\",\
+          \ \"gclid\", \"ref\"}\n\n\ndef parse_plan(llm_text: str, topic: str, max_q:\
+          \ int = 5) -> list[str]:\n    \"\"\"Parse planner output into sub-questions;\
+          \ fall back to the topic itself.\"\"\"\n    m = re.search(r\"\\[.*\\]\"\
+          , llm_text or \"\", re.DOTALL)\n    qs: list[str] = []\n    if m:\n    \
+          \    try:\n            data = json.loads(m.group(0))\n            qs = [str(q).strip()\
+          \ for q in data if str(q).strip()]\n        except json.JSONDecodeError:\n\
+          \            qs = []\n    if not qs:\n        qs = [ln.strip(\" -*0123456789.\"\
+          ).strip() for ln in (llm_text or \"\").splitlines()]\n        qs = [q for\
+          \ q in qs if q.endswith(\"?\")]\n    seen, out = set(), []\n    for q in\
+          \ qs:\n        if q.lower() not in seen:\n            seen.add(q.lower());\
+          \ out.append(q)\n    return out[:max_q] or [topic]\n\n\ndef normalize_url(url:\
+          \ str) -> str:\n    p = urlsplit(url.strip())\n    query = urlencode([(k,\
+          \ v) for k, v in parse_qsl(p.query) if k.lower() not in TRACKING])\n   \
+          \ host = p.netloc.lower().removeprefix(\"www.\")\n    path = p.path.rstrip(\"\
+          /\") or \"/\"\n    return urlunsplit((\"https\" if p.scheme in (\"http\"\
+          , \"https\") else p.scheme, host, path, query, \"\"))\n\n\ndef pick_results(searxng_json:\
+          \ str | dict, k: int = 3) -> list[dict]:\n    \"\"\"Take a SearXNG /search?format=json\
+          \ response, dedupe, keep top k.\"\"\"\n    data = json.loads(searxng_json)\
+          \ if isinstance(searxng_json, str) else searxng_json\n    out, seen = [],\
+          \ set()\n    for r in data.get(\"results\", []):\n        url = r.get(\"\
+          url\")\n        if not url or not url.startswith((\"http://\", \"https://\"\
+          )):\n            continue\n        key = normalize_url(url)\n        if\
+          \ key in seen:\n            continue\n        seen.add(key)\n        out.append({\"\
+          title\": r.get(\"title\", \"\").strip(), \"url\": url,\n               \
+          \     \"snippet\": (r.get(\"content\") or \"\").strip()[:500]})\n      \
+          \  if len(out) >= k:\n            break\n    return out\n\n\ndef build_registry(per_question:\
+          \ list[list[dict]]) -> list[dict]:\n    \"\"\"Merge results from all sub-questions\
+          \ into one numbered source list.\"\"\"\n    reg, index = [], {}\n    for\
+          \ results in per_question:\n        for r in results:\n            key =\
+          \ normalize_url(r[\"url\"])\n            if key not in index:\n        \
+          \        index[key] = len(reg) + 1\n                reg.append({\"id\":\
+          \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
+          \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
+          \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
+          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
+          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
+          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \ report stats.\n\n    Checks citation integrity only - not whether the\
+          \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
+          \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
+          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
+          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
+          \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
+          \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
+          \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
+          \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
+          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
+          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
+          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
+          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
+          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
+          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
+          : len(reg)}\n\n\ndef main(report: str, registry: str) -> dict:\n    res\
+          \ = validate_citations(report or \"\", json.loads(registry or \"[]\"))\n\
+          \    out = res.pop(\"report\")\n    return {\"report\": out, \"stats\":\
+          \ json.dumps(res)}\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          report:
+            children: null
+            type: string
+          stats:
+            children: null
+            type: string
+        selected: false
+        title: Validate citations
+        type: code
+        variables:
+        - value_selector:
+          - writer
+          - text
+          variable: report
+        - value_selector:
+          - registry
+          - registry
+          variable: registry
+      height: 90
+      id: validate
+      position:
+        x: 2250
+        y: 300
+      positionAbsolute:
+        x: 2250
+        y: 300
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - validate
+          - report
+          value_type: string
+          variable: report
+        - value_selector:
+          - validate
+          - stats
+          value_type: string
+          variable: stats
+        selected: false
+        title: End
+        type: end
+      height: 90
+      id: end
+      position:
+        x: 2550
+        y: 300
+      positionAbsolute:
+        x: 2550
+        y: 300
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+  rag_pipeline_variables: []
