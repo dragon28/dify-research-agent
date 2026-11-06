@@ -3,13 +3,15 @@
   "cited": [
     4,
     5,
-    6,
     7,
     8,
-    9
+    9,
+    10
   ],
   "invalid_removed": [],
-  "uncited_paragraphs": 4,
+  "uncited_paragraphs": 5,
   "sources_total": 12,
-  "seconds": 52
+  "seconds": 235,
+  "model": "qwen2.5:7b",
+  "runner": "github-actions ubuntu-latest (CPU)"
 }
