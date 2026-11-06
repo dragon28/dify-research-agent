@@ -300,15 +300,16 @@ workflow:
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
           \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
           \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
-          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
-          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
-          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
-          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
-          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
-          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
-          : len(reg)}\n\n\ndef main(text: str, topic: str, depth=None) -> dict:\n\
-          \    n = int(depth) if depth else 4\n    return {\"questions\": parse_plan(text,\
-          \ topic, max(3, min(n, 5)))}\n"
+          \ in reg if s[\"id\"] in used)\n    text = \"\\n\".join(ln for ln in body.splitlines()\
+          \ if not ln.lstrip().startswith(\"#\"))\n    paras = [p for p in re.split(r\"\
+          \\n\\s*\\n|\\n(?=\\s*[-*] )\", text) if p.strip()]\n    uncited = sum(1\
+          \ for p in paras if not CITE.search(p))\n    return {\"report\": body +\
+          \ \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\") + \"\
+          \\n\",\n            \"cited\": sorted(used), \"invalid_removed\": sorted(invalid),\n\
+          \            \"uncited_paragraphs\": uncited, \"sources_total\": len(reg)}\n\
+          \n\ndef main(text: str, topic: str, depth=None) -> dict:\n    n = int(depth)\
+          \ if depth else 4\n    return {\"questions\": parse_plan(text, topic, max(3,\
+          \ min(n, 5)))}\n"
         code_language: python3
         desc: ''
         outputs:
@@ -497,13 +498,14 @@ workflow:
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
           \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
           \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
-          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
-          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
-          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
-          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
-          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
-          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
-          : len(reg)}\n\n\ndef main(body: str) -> dict:\n    try:\n        res = pick_results(body\
+          \ in reg if s[\"id\"] in used)\n    text = \"\\n\".join(ln for ln in body.splitlines()\
+          \ if not ln.lstrip().startswith(\"#\"))\n    paras = [p for p in re.split(r\"\
+          \\n\\s*\\n|\\n(?=\\s*[-*] )\", text) if p.strip()]\n    uncited = sum(1\
+          \ for p in paras if not CITE.search(p))\n    return {\"report\": body +\
+          \ \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\") + \"\
+          \\n\",\n            \"cited\": sorted(used), \"invalid_removed\": sorted(invalid),\n\
+          \            \"uncited_paragraphs\": uncited, \"sources_total\": len(reg)}\n\
+          \n\ndef main(body: str) -> dict:\n    try:\n        res = pick_results(body\
           \ or '{\"results\": []}', k=3)\n    except Exception:\n        res = []\n\
           \    return {\"results_json\": json.dumps(res)}\n"
         code_language: python3
@@ -636,14 +638,15 @@ workflow:
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
           \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
           \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
-          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
-          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
-          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
-          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
-          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
-          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
-          : len(reg)}\n\n\ndef main(per_q: list, wiki: str) -> dict:\n    lists =\
-          \ []\n    for s in per_q or []:\n        try:\n            lists.append(json.loads(s)\
+          \ in reg if s[\"id\"] in used)\n    text = \"\\n\".join(ln for ln in body.splitlines()\
+          \ if not ln.lstrip().startswith(\"#\"))\n    paras = [p for p in re.split(r\"\
+          \\n\\s*\\n|\\n(?=\\s*[-*] )\", text) if p.strip()]\n    uncited = sum(1\
+          \ for p in paras if not CITE.search(p))\n    return {\"report\": body +\
+          \ \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\") + \"\
+          \\n\",\n            \"cited\": sorted(used), \"invalid_removed\": sorted(invalid),\n\
+          \            \"uncited_paragraphs\": uncited, \"sources_total\": len(reg)}\n\
+          \n\ndef main(per_q: list, wiki: str) -> dict:\n    lists = []\n    for s\
+          \ in per_q or []:\n        try:\n            lists.append(json.loads(s)\
           \ if s else [])\n        except Exception:\n            pass\n    try:\n\
           \        lists.insert(0, pick_results(wiki or '{\"results\": []}', k=1))\n\
           \    except Exception:\n        pass\n    reg = build_registry(lists)\n\
@@ -782,16 +785,16 @@ workflow:
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
           \    body = CITE.sub(fix, body).rstrip()\n    refs = \"\\n\".join(f\"{s['id']}.\
           \ [{s['title'] or s['url']}]({s['url']})\"\n                      for s\
-          \ in reg if s[\"id\"] in used)\n    paras = [p for p in body.split(\"\\\
-          n\\n\") if p.strip() and not p.lstrip().startswith(\"#\")]\n    uncited\
-          \ = sum(1 for p in paras if not CITE.search(p))\n    return {\"report\"\
-          : body + \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\"\
-          ) + \"\\n\",\n            \"cited\": sorted(used), \"invalid_removed\":\
-          \ sorted(invalid),\n            \"uncited_paragraphs\": uncited, \"sources_total\"\
-          : len(reg)}\n\n\ndef main(report: str, registry: str) -> dict:\n    res\
-          \ = validate_citations(report or \"\", json.loads(registry or \"[]\"))\n\
-          \    out = res.pop(\"report\")\n    return {\"report\": out, \"stats\":\
-          \ json.dumps(res)}\n"
+          \ in reg if s[\"id\"] in used)\n    text = \"\\n\".join(ln for ln in body.splitlines()\
+          \ if not ln.lstrip().startswith(\"#\"))\n    paras = [p for p in re.split(r\"\
+          \\n\\s*\\n|\\n(?=\\s*[-*] )\", text) if p.strip()]\n    uncited = sum(1\
+          \ for p in paras if not CITE.search(p))\n    return {\"report\": body +\
+          \ \"\\n\\n## References\\n\\n\" + (refs or \"_No sources cited._\") + \"\
+          \\n\",\n            \"cited\": sorted(used), \"invalid_removed\": sorted(invalid),\n\
+          \            \"uncited_paragraphs\": uncited, \"sources_total\": len(reg)}\n\
+          \n\ndef main(report: str, registry: str) -> dict:\n    res = validate_citations(report\
+          \ or \"\", json.loads(registry or \"[]\"))\n    out = res.pop(\"report\"\
+          )\n    return {\"report\": out, \"stats\": json.dumps(res)}\n"
         code_language: python3
         desc: ''
         outputs:

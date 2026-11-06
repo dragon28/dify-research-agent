@@ -1,14 +1,15 @@
 {
   "topic": "Open-source tools for nanopore sequencing analysis",
   "cited": [
+    4,
+    5,
+    6,
     7,
     8,
-    9,
-    10,
-    11
+    9
   ],
   "invalid_removed": [],
-  "uncited_paragraphs": 0,
+  "uncited_paragraphs": 4,
   "sources_total": 12,
-  "seconds": 49
+  "seconds": 52
 }

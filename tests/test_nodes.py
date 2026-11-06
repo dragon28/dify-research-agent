@@ -50,3 +50,14 @@ def test_validate_citations_removes_unknown_and_rebuilds_refs():
     assert res["uncited_paragraphs"] == 1
     assert "[2]" in res["report"] and "[9]" not in res["report"] and "fake" not in res["report"]
     assert "1. [A](https://a.com)" in res["report"]
+
+
+def test_uncited_summary_under_heading_is_counted():
+    reg = [{"id": 1, "title": "A", "url": "https://a.com", "snippet": ""}]
+    rep = "# T\n\n## Summary\nNo citation here.\n\n## Findings\n- Fact [1].\n- Claim."
+    assert validate_citations(rep, reg)["uncited_paragraphs"] == 2
+
+
+def test_zero_sources_strips_everything():
+    res = validate_citations("# T\n\nMade up [1].", [])
+    assert res["sources_total"] == 0 and res["invalid_removed"] == [1]

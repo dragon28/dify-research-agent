@@ -1,7 +1,8 @@
 # Dify Research Agent
 
 > Status: tested end to end on self-hosted Dify 1.19.0 with Ollama qwen2.5:7b.
-> Four example reports are in [examples/](examples/), each took 47-54 s on one machine.
+> Four example reports are in [examples/](examples/), each took 45-63 s on one machine. Each has a
+> .stats.json: sources found, sources cited, and paragraphs with no citation (4-5 per report).
 
 ![Workflow](docs/workflow.png)
 
@@ -46,6 +47,7 @@ URL dedupe, source numbering, citation validation). CI runs the same tests.
 
 ## Limitations
 
+- The runner exits with an error if no sources were retrieved, instead of saving an unsupported report.
 - The citation check proves that each [n] points to a retrieved source. It does not
   prove that the source supports the claim.
 - Search results depend on the upstream engines SearXNG queries, and those engines

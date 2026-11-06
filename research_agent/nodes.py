@@ -99,7 +99,8 @@ def validate_citations(report: str, reg: list[dict]) -> dict:
     body = CITE.sub(fix, body).rstrip()
     refs = "\n".join(f"{s['id']}. [{s['title'] or s['url']}]({s['url']})"
                       for s in reg if s["id"] in used)
-    paras = [p for p in body.split("\n\n") if p.strip() and not p.lstrip().startswith("#")]
+    text = "\n".join(ln for ln in body.splitlines() if not ln.lstrip().startswith("#"))
+    paras = [p for p in re.split(r"\n\s*\n|\n(?=\s*[-*] )", text) if p.strip()]
     uncited = sum(1 for p in paras if not CITE.search(p))
     return {"report": body + "\n\n## References\n\n" + (refs or "_No sources cited._") + "\n",
             "cited": sorted(used), "invalid_removed": sorted(invalid),

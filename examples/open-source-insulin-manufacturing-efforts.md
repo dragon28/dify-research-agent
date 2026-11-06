@@ -1,26 +1,41 @@
 # Open-source insulin manufacturing efforts
 
 ## Summary
-The Open Insulin Project and the Open Insulin Foundation are leading efforts to produce insulin using an open source framework. These initiatives aim to reduce the cost and increase the accessibility of insulin, a critical medication for people with diabetes. The project involves developing open hardware equivalents to proprietary production equipment, engineering microorganisms to produce insulin, and navigating regulatory pathways for small-scale manufacturing.
+The Open Insulin Project and the Open Insulin Foundation are leading efforts to develop open-source insulin manufacturing. These initiatives aim to reduce the cost and increase access to insulin, a critical medication for people with diabetes. The project involves both the production of insulin and the development of automated insulin delivery systems.
 
 ## Findings
-1. **Cost and Equipment**: The cost of manufacturing insulin using open-source methods is estimated to be around $200,000 for one-time equipment setup, with ongoing costs of $7-$20 per vial for used equipment and $73 per vial for new equipment [1]. Each patient requires two vials per month [1].
-2. **Patent Issues**: Recognizing the role of patents in reducing access to life-saving medicines, the Open Insulin Foundation was established to produce insulin using an open source framework [2].
-3. **Technological Development**: The project focuses on refining techniques for using transgenic Pichia pastoris to synthesize glargine, a type of long-acting insulin [4]. Additionally, efforts are being made to develop open hardware equivalents to proprietary production equipment [5].
-4. **Regulatory and Manufacturing Challenges**: The foundation is working on developing plans for local, small-scale manufacturing pilots and researching regulation pathways to bring their insulin to the public [5].
-5. **Security Concerns**: Some open source systems rely on legacy insulin pumps that are no longer supported, and unauthorized software to link components, which can pose security risks [7].
+### Production Costs
+- The cost of manufacturing insulin using an open-source framework is estimated to be around $7-$20 per vial, with each patient needing two vials per month [1].
+
+### Equipment Costs
+- For used equipment, the cost is approximately $200,000, while new equipment can cost up to $1,000,000 [1].
+
+### Technological Challenges
+- The Open Insulin Project is focusing on refining techniques for using transgenic Pichia pastoris to synthesize glargine, a type of long-acting insulin [4].
+- Open-source automated insulin delivery systems face challenges related to security and compatibility with legacy insulin pumps [7].
+
+### Organizational Status
+- Open Insulin has become an independent nonprofit organization, highlighting its commitment to advancing the project [5].
+
+### Patent Landscape
+- The patent landscape for closed-loop insulin delivery is dominated by a few commercial entities, including Dexcom, Bigfoot Biomedical, Medtronic MiniMed, and Abbott Diabetes Care [6].
+
+### Security Concerns
+- Legacy insulin pumps pose security risks, which are exacerbated by the use of unauthorized software to link components [7].
+
+### Barriers to Uptake
+- Confidence in open-source technologies and fear of digital technology taking control of diabetes are significant barriers to the uptake of open-source automated insulin delivery systems [8].
 
 ## Open questions
-1. **Regulatory Approval**: How will the open-source insulin be regulated, and what are the challenges in obtaining approval for its use?
-2. **Security Risks**: What are the specific security risks associated with using legacy insulin pumps and unauthorized software, and how can these be mitigated?
-3. **Public Confidence**: How can the project address the barriers related to confidence in open-source technologies and the fear of digital technology taking control of diabetes?
-4. **Cost and Scalability**: Can the open-source approach be scaled up to meet the global demand for insulin, and how will the costs be managed at larger scales?
-5. **Technological Maturity**: What are the current limitations of open-source insulin production, and how can they be addressed to improve the reliability and safety of the insulin produced?
+- How can the security risks associated with legacy insulin pumps be mitigated in open-source insulin delivery systems?
+- What are the specific characteristics of insulin that can be produced through genetic engineering, and how do they differ from current insulin types?
+- How can the confidence barriers be addressed to increase the adoption of open-source insulin and delivery systems?
 
 ## References
 
 1. [Open Insulin Project - Wikipedia](https://en.wikipedia.org/wiki/Open_Insulin_Project)
-2. [Patents, Open Source, and Open Insulin – Open Insulin](https://openinsulin.org/patents-open-source-and-open-insulin/)
 4. [Our Blog - Open Insulin Project](https://openinsulin.org/our-blog/)
-5. [What We Do – Open Insulin](https://openinsulin.org/what-we-do/)
+5. [2023 Recap - Open Insulin Foundation](https://openinsulin.org/2023-recap/)
+6. [Closed Loop Insulin Delivery: Technology Landscape 2026](https://www.patsnap.com/resources/blog/rd-blog/closed-loop-insulin-delivery-2026-patsnap-eureka/)
 7. [Open source automated insulin delivery: addressing the challenge ...](https://www.nature.com/articles/s41746-019-0202-1)
+8. [Barriers to Uptake of Open-Source Automated Insulin Delivery ...](https://pmc.ncbi.nlm.nih.gov/articles/PMC10012142/)

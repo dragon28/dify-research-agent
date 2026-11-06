@@ -1,27 +1,40 @@
 # Graphene Production Methods for Hobbyists
 
 ## Summary
-Graphene, a single layer of carbon atoms arranged in a hexagonal lattice, is a versatile material with numerous applications. While its production methods are complex and typically require specialized equipment, some techniques can be adapted for hobbyists. This brief explores the feasibility of hobbyist-level graphene production and the challenges associated with it.
+Graphene, a single-layer form of carbon, has garnered significant attention due to its unique properties and potential applications. While the production of graphene is primarily handled by industrial processes, some methods can be adapted for hobbyists. This brief explores the feasibility and practicality of these methods for amateur enthusiasts.
 
 ## Findings
-### Production Techniques
-- **Chemical Vapor Deposition (CVD)**: This method involves the decomposition of a carbon-containing gas (like methane or ethanol) on a metal substrate to form graphene. While this is the most common industrial method, it is not feasible for hobbyists due to the need for precise equipment and controlled conditions [10, 11].
-- **Mechanical Exfoliation**: This technique involves peeling off layers of graphite to obtain graphene. While simple, it is limited to small quantities and is not scalable [3].
-- **Ultrasonic Dispersion**: Using ultrasonic waves to disperse graphite in a solvent can produce graphene flakes. This method is more accessible to hobbyists but results in lower quality graphene compared to CVD [8].
+### Historical Context
+- **1859**: Benjamin C. Brodie's experiments with graphite using potassium chlorate and fuming nitric acid marked an early step in the chemical history of graphene [2].
+- **2004**: Andre Geim and Konstantin Novoselov's discovery of graphene through mechanical exfoliation from graphite won them the Nobel Prize in Physics [1].
+
+### Current Methods
+- **Mechanical Exfoliation**: This method, involving the use of adhesive tape to peel layers from graphite, is simple but limited in scale and quality [3].
+- **Electrochemical Exfoliation**: A fast and environmentally friendly technique that converts graphite into graphene oxide using an electric current in an electrolyte solution [5].
+- **Ultrasonic Mixing**: Utilizes ultrasonic energy to disperse graphite in epoxy resin, creating a graphene-based composite [6].
+- **Plasma-Assisted Methane Cracking**: A promising method for continuous graphene production, though it requires advanced equipment and expertise [8].
+- **Flash Joule Heating**: An automated process for bulk graphene production, suitable for industrial settings but potentially adaptable for hobbyists with the right equipment [7].
 
 ### Challenges
-- **Quality and Purity**: Hobbyist methods produce graphene with lower quality and purity compared to industrial methods. This can limit the material's effectiveness in practical applications [10].
-- **Scalability**: Techniques suitable for hobbyists are not scalable for commercial use. This makes them unsuitable for large-scale production needs [11].
-- **Cost and Equipment**: While some methods like ultrasonic dispersion are more accessible, they still require specific equipment and materials that can be expensive for hobbyists [8].
+- **Purity and Quality**: Lab-scale methods can produce nearly perfect graphene, but industrial-scale processes struggle with consistency in purity and structural integrity [10].
+- **Economic Viability**: Industrial methods like Chemical Vapor Deposition (CVD) are complex and sensitive, often compromising on cost or quality [10].
+- **Up-scaling**: The main challenge for hobbyists is scaling up the production process to a level that is both practical and economically feasible [11].
 
-## Open questions
-- Can hobbyist-level techniques be improved to produce higher quality graphene?
-- Are there alternative, more accessible methods for hobbyists to produce graphene that could be developed?
-- How can the gap between hobbyist and industrial graphene production be bridged to facilitate more widespread use of graphene in various applications?
+## Open Questions
+- How can hobbyists adapt industrial-scale methods for graphene production to a smaller, more manageable scale?
+- What are the most viable and cost-effective methods for hobbyists to produce graphene at home?
+- How can the quality and purity of graphene produced by hobbyists be improved and standardized?
+
+These questions highlight the need for further research and development in making graphene production more accessible and practical for non-professional users.
 
 ## References
 
-3. [Discovery of graphene - Wikipedia](https://en.wikipedia.org/wiki/Discovery_of_graphene)
-8. [Ultrasonic Graphene Production](https://www.hielscher.com/ultrasonic-graphene-preparation.htm)
+1. [Mass-Producing Graphene | American Scientist](https://www.americanscientist.org/article/mass-producing-graphene)
+2. [Graphene: A Complete Chemical History - ACS Material](https://www.acsmaterial.com/blog-detail/graphene-a-complete-chemical-history.html)
+3. [History | Graphene at Manchester](https://www.graphene.manchester.ac.uk/about/history/)
+5. [Comprehensive Review of Graphene Synthesis Techniques: Advancements, ...](https://www.mdpi.com/2673-8023/5/3/40)
+6. [Ultrasonic Graphene Production](https://www.hielscher.com/ultrasonic-graphene-preparation.htm)
+7. [Industrial Graphene Production Equipment & Machinery | USA Graphene ...](https://www.usa-graphene.com/equipment/)
+8. [Advances in graphene synthesis: From conventional methods to ...](https://www.sciencedirect.com/science/article/abs/pii/S2352507X25001489)
 10. [What Are The Problems With Graphene Production? The Key Challenges ...](https://kindle-tech.com/faqs/what-are-the-problems-with-graphene-production)
 11. [The Challenges Facing Graphene Commercialisation - AZoNano](https://www.azonano.com/article.aspx?ArticleID=3950)

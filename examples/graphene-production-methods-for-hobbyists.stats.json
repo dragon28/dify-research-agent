@@ -1,13 +1,18 @@
 {
   "topic": "Graphene production methods for hobbyists",
   "cited": [
+    1,
+    2,
     3,
+    5,
+    6,
+    7,
     8,
     10,
     11
   ],
   "invalid_removed": [],
-  "uncited_paragraphs": 0,
+  "uncited_paragraphs": 5,
   "sources_total": 11,
-  "seconds": 47
+  "seconds": 54
 }
