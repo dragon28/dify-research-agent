@@ -1,225 +1,76 @@
 app:
+  name: Deep Research Agent
+  mode: workflow
+  icon: 🔎
+  icon_background: '#E0F2FE'
+  use_icon_as_answer_icon: false
   description: Plan -> SearXNG search (iteration) + Wikipedia (parallel) -> cited
     Markdown report with citation validation.
-  icon: 🔎
-  icon_background: '#E0F2FE'
-  icon_type: emoji
-  mode: workflow
-  name: Deep Research Agent
-  use_icon_as_answer_icon: false
+kind: app
+version: 0.3.1
 dependencies:
-- current_identifier: null
-  type: marketplace
+- type: marketplace
   value:
     marketplace_plugin_unique_identifier: langgenius/ollama:1.0.3@1086758302d98263d5b7881de8ba95fc219351fdf97831d18a7807378674d203
-    version: null
-kind: app
-site:
-  chat_color_theme: null
-  chat_color_theme_inverted: false
-  copyright: null
-  custom_disclaimer: ''
-  default_language: en-US
-  description: null
-  icon: 🔎
-  icon_background: '#E0F2FE'
-  icon_type: emoji
-  input_placeholder: null
-  privacy_policy: null
-  show_workflow_steps: true
-  title: Deep Research Agent
-  use_icon_as_answer_icon: false
-version: 0.7.0
 workflow:
   conversation_variables: []
   environment_variables: []
-  features:
-    file_upload: {}
-    sensitive_word_avoidance:
-      enabled: false
-    text_to_speech:
-      enabled: false
-      language: ''
-      voice: ''
+  features: {}
   graph:
-    edges:
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: start
-        targetType: llm
-      id: start-planner
-      source: start
-      sourceHandle: source
-      target: planner
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: start
-        targetType: http-request
-      id: start-wiki
-      source: start
-      sourceHandle: source
-      target: wiki
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: code
-      id: planner-parse
-      source: planner
-      sourceHandle: source
-      target: parse
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: code
-        targetType: iteration
-      id: parse-iter
-      source: parse
-      sourceHandle: source
-      target: iter
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: true
-        isInLoop: false
-        iteration_id: iter
-        sourceType: iteration-start
-        targetType: http-request
-      id: iterstart-search
-      source: iterstart
-      sourceHandle: source
-      target: search
-      targetHandle: target
-      type: custom
-      zIndex: 1002
-    - data:
-        isInIteration: true
-        isInLoop: false
-        iteration_id: iter
-        sourceType: http-request
-        targetType: code
-      id: search-pick
-      source: search
-      sourceHandle: source
-      target: pick
-      targetHandle: target
-      type: custom
-      zIndex: 1002
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: iteration
-        targetType: code
-      id: iter-registry
-      source: iter
-      sourceHandle: source
-      target: registry
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: http-request
-        targetType: code
-      id: wiki-registry
-      source: wiki
-      sourceHandle: source
-      target: registry
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: code
-        targetType: llm
-      id: registry-writer
-      source: registry
-      sourceHandle: source
-      target: writer
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: code
-      id: writer-validate
-      source: writer
-      sourceHandle: source
-      target: validate
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: code
-        targetType: end
-      id: validate-end
-      source: validate
-      sourceHandle: source
-      target: end
-      targetHandle: target
-      type: custom
-      zIndex: 0
     nodes:
-    - data:
-        desc: ''
-        selected: false
-        title: Start
-        type: start
-        variables:
-        - label: topic
-          max_length: 500
-          options: []
-          required: true
-          type: paragraph
-          variable: topic
-        - label: depth (3-5)
-          options: []
-          required: false
-          type: number
-          variable: depth
-      height: 90
-      id: start
+    - id: start
+      type: custom
       position:
         x: 0
         y: 300
       positionAbsolute:
         x: 0
         y: 300
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        context:
-          enabled: false
-          variable_selector: []
+      data:
         desc: ''
-        memory: null
-        model:
-          completion_params:
-            num_ctx: 16384
-            temperature: 0.2
-          mode: chat
-          name: qwen2.5:7b
+        selected: false
+        type: start
+        title: Start
+        variables:
+        - variable: topic
+          label: topic
+          type: paragraph
+          required: true
+          max_length: 500
+          options: []
+        - variable: depth
+          label: depth (3-5)
+          type: number
+          required: false
+          options: []
+    - id: planner
+      type: custom
+      position:
+        x: 300
+        y: 200
+      positionAbsolute:
+        x: 300
+        y: 200
+      width: 244
+      height: 90
+      sourcePosition: right
+      targetPosition: left
+      data:
+        desc: ''
+        selected: false
+        type: llm
+        title: Planner
+        model: &id001
           provider: langgenius/ollama/ollama
+          name: qwen2.5:7b
+          mode: chat
+          completion_params:
+            temperature: 0.2
+            num_ctx: 16384
         prompt_template:
         - role: system
           text: You plan web research. Reply with ONLY a JSON array of short search-engine
@@ -229,24 +80,47 @@ workflow:
 
             Write {{#start.depth#}} (default 4) distinct search queries that together
             cover background, current state, key players or tools, and open problems.'
-        selected: false
-        title: Planner
-        type: llm
+        context:
+          enabled: false
+          variable_selector: []
         vision:
           enabled: false
-      height: 90
-      id: planner
+        memory: null
+    - id: parse
+      type: custom
       position:
-        x: 300
+        x: 600
         y: 200
       positionAbsolute:
-        x: 300
+        x: 600
         y: 200
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-    - data:
+      data:
+        desc: ''
+        selected: false
+        type: code
+        title: Parse plan
+        code_language: python3
+        variables:
+        - variable: text
+          value_selector:
+          - planner
+          - text
+        - variable: topic
+          value_selector:
+          - start
+          - topic
+        - variable: depth
+          value_selector:
+          - start
+          - depth
+        outputs:
+          questions:
+            type: array[string]
+            children: null
         code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
           \ function mirrors one Code node. Keep them dependency-free so the\nsame\
           \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
@@ -287,14 +161,15 @@ workflow:
           \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
           \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
           \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
-          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
-          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
-          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \          for s in reg)\n\n\nREF = r\"(?:n|source|src|#)?\\s*\\d+\"\nCITE\
+          \ = re.compile(r\"\\[(\" + REF + r\"(?:\\s*[,;]\\s*\" + REF + r\")*)\\]\"\
+          , re.IGNORECASE)\n\n\ndef validate_citations(report: str, reg: list[dict])\
+          \ -> dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
           \ report stats.\n\n    Checks citation integrity only - not whether the\
           \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
           \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
-          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
-          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \        nums = [int(n) for n in re.findall(r\"\\d+\", m.group(1))]\n  \
+          \      keep = [n for n in nums if n in valid]\n        invalid.update(n\
           \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
           \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
@@ -310,79 +185,38 @@ workflow:
           \n\ndef main(text: str, topic: str, depth=None) -> dict:\n    n = int(depth)\
           \ if depth else 4\n    return {\"questions\": parse_plan(text, topic, max(3,\
           \ min(n, 5)))}\n"
-        code_language: python3
-        desc: ''
-        outputs:
-          questions:
-            children: null
-            type: array[string]
-        selected: false
-        title: Parse plan
-        type: code
-        variables:
-        - value_selector:
-          - planner
-          - text
-          variable: text
-        - value_selector:
-          - start
-          - topic
-          variable: topic
-        - value_selector:
-          - start
-          - depth
-          variable: depth
-      height: 90
-      id: parse
-      position:
-        x: 600
-        y: 200
-      positionAbsolute:
-        x: 600
-        y: 200
-      sourcePosition: right
-      targetPosition: left
+    - id: iter
       type: custom
-      width: 244
-    - data:
+      position:
+        x: 900
+        y: 150
+      positionAbsolute:
+        x: 900
+        y: 150
+      width: 640
+      height: 200
+      zIndex: 1
+      data:
+        type: iteration
+        title: Search each question
         desc: ''
-        error_handle_mode: continue-on-error
-        height: 200
-        is_parallel: true
-        iterator_input_type: array[string]
+        selected: false
         iterator_selector:
         - parse
         - questions
+        iterator_input_type: array[string]
         output_selector:
         - pick
         - results_json
         output_type: array[string]
-        parallel_nums: 3
-        selected: false
         start_node_id: iterstart
-        title: Search each question
-        type: iteration
+        is_parallel: true
+        parallel_nums: 3
+        error_handle_mode: continue-on-error
         width: 640
-      height: 200
-      id: iter
-      position:
-        x: 900
-        y: 150
-      positionAbsolute:
-        x: 900
-        y: 150
-      type: custom
-      width: 640
-      zIndex: 1
-    - data:
-        desc: ''
-        isInIteration: true
-        selected: false
-        title: ''
-        type: iteration-start
-      draggable: false
-      height: 48
-      id: iterstart
+        height: 200
+    - id: iterstart
+      type: custom-iteration-start
       parentId: iter
       position:
         x: 24
@@ -390,17 +224,55 @@ workflow:
       positionAbsolute:
         x: 924
         y: 218
-      selectable: false
-      type: custom-iteration-start
       width: 44
+      height: 48
       zIndex: 1002
-    - data:
+      draggable: false
+      selectable: false
+      data:
+        type: iteration-start
+        title: ''
+        desc: ''
+        isInIteration: true
+        selected: false
+    - id: search
+      type: custom
+      position:
+        x: 1000
+        y: 230
+      positionAbsolute:
+        x: 1000
+        y: 230
+      width: 244
+      height: 90
+      sourcePosition: right
+      targetPosition: left
+      data:
+        desc: ''
+        selected: false
+        type: http-request
+        title: SearXNG search
+        method: get
+        url: http://searxng:8080/search
         authorization:
-          config: null
           type: no-auth
+          config: null
+        headers: ''
+        params: 'q:{{#iter.item#}}
+
+          format:json'
         body:
-          data: []
           type: none
+          data: []
+        timeout:
+          connect: 10
+          read: 30
+          write: 30
+        retry_config:
+          enabled: true
+          max_retries: 2
+          retry_interval: 1000
+        error_strategy: default-value
         default_value:
         - key: body
           type: string
@@ -408,43 +280,38 @@ workflow:
         - key: status_code
           type: number
           value: 0
-        desc: ''
-        error_strategy: default-value
-        headers: ''
         isInIteration: true
         isInLoop: false
         iteration_id: iter
-        method: get
-        params: 'q:{{#iter.item#}}
-
-          format:json'
-        retry_config:
-          enabled: true
-          max_retries: 2
-          retry_interval: 1000
-        selected: false
-        timeout:
-          connect: 10
-          read: 30
-          write: 30
-        title: SearXNG search
-        type: http-request
-        url: http://searxng:8080/search
-      height: 90
-      id: search
       parentId: iter
+      zIndex: 1002
+    - id: pick
+      type: custom
       position:
-        x: 1000
+        x: 1300
         y: 230
       positionAbsolute:
-        x: 1000
+        x: 1300
         y: 230
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-      zIndex: 1002
-    - data:
+      data:
+        desc: ''
+        selected: false
+        type: code
+        title: Dedupe + top 3
+        code_language: python3
+        variables:
+        - variable: body
+          value_selector:
+          - search
+          - body
+        outputs:
+          results_json:
+            type: string
+            children: null
         code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
           \ function mirrors one Code node. Keep them dependency-free so the\nsame\
           \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
@@ -485,14 +352,15 @@ workflow:
           \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
           \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
           \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
-          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
-          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
-          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \          for s in reg)\n\n\nREF = r\"(?:n|source|src|#)?\\s*\\d+\"\nCITE\
+          \ = re.compile(r\"\\[(\" + REF + r\"(?:\\s*[,;]\\s*\" + REF + r\")*)\\]\"\
+          , re.IGNORECASE)\n\n\ndef validate_citations(report: str, reg: list[dict])\
+          \ -> dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
           \ report stats.\n\n    Checks citation integrity only - not whether the\
           \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
           \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
-          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
-          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \        nums = [int(n) for n in re.findall(r\"\\d+\", m.group(1))]\n  \
+          \      keep = [n for n in nums if n in valid]\n        invalid.update(n\
           \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
           \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
@@ -508,44 +376,49 @@ workflow:
           \n\ndef main(body: str) -> dict:\n    try:\n        res = pick_results(body\
           \ or '{\"results\": []}', k=3)\n    except Exception:\n        res = []\n\
           \    return {\"results_json\": json.dumps(res)}\n"
-        code_language: python3
-        desc: ''
         isInIteration: true
         isInLoop: false
         iteration_id: iter
-        outputs:
-          results_json:
-            children: null
-            type: string
-        selected: false
-        title: Dedupe + top 3
-        type: code
-        variables:
-        - value_selector:
-          - search
-          - body
-          variable: body
-      height: 90
-      id: pick
       parentId: iter
+      zIndex: 1002
+    - id: wiki
+      type: custom
       position:
-        x: 1300
-        y: 230
+        x: 900
+        y: 450
       positionAbsolute:
-        x: 1300
-        y: 230
+        x: 900
+        y: 450
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-      zIndex: 1002
-    - data:
+      data:
+        desc: ''
+        selected: false
+        type: http-request
+        title: Wikipedia via SearXNG (parallel)
+        method: get
+        url: http://searxng:8080/search
         authorization:
-          config: null
           type: no-auth
+          config: null
+        headers: ''
+        params: 'q:!wp {{#start.topic#}}
+
+          format:json'
         body:
-          data: []
           type: none
+          data: []
+        timeout:
+          connect: 10
+          read: 30
+          write: 30
+        retry_config:
+          enabled: true
+          max_retries: 2
+          retry_interval: 1000
+        error_strategy: default-value
         default_value:
         - key: body
           type: string
@@ -553,38 +426,40 @@ workflow:
         - key: status_code
           type: number
           value: 0
-        desc: ''
-        error_strategy: default-value
-        headers: ''
-        method: get
-        params: 'q:!wp {{#start.topic#}}
-
-          format:json'
-        retry_config:
-          enabled: true
-          max_retries: 2
-          retry_interval: 1000
-        selected: false
-        timeout:
-          connect: 10
-          read: 30
-          write: 30
-        title: Wikipedia via SearXNG (parallel)
-        type: http-request
-        url: http://searxng:8080/search
-      height: 90
-      id: wiki
+    - id: registry
+      type: custom
       position:
-        x: 900
-        y: 450
+        x: 1650
+        y: 300
       positionAbsolute:
-        x: 900
-        y: 450
+        x: 1650
+        y: 300
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-    - data:
+      data:
+        desc: ''
+        selected: false
+        type: code
+        title: Build source registry
+        code_language: python3
+        variables:
+        - variable: per_q
+          value_selector:
+          - iter
+          - output
+        - variable: wiki
+          value_selector:
+          - wiki
+          - body
+        outputs:
+          registry:
+            type: string
+            children: null
+          sources_text:
+            type: string
+            children: null
         code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
           \ function mirrors one Code node. Keep them dependency-free so the\nsame\
           \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
@@ -625,14 +500,15 @@ workflow:
           \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
           \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
           \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
-          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
-          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
-          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \          for s in reg)\n\n\nREF = r\"(?:n|source|src|#)?\\s*\\d+\"\nCITE\
+          \ = re.compile(r\"\\[(\" + REF + r\"(?:\\s*[,;]\\s*\" + REF + r\")*)\\]\"\
+          , re.IGNORECASE)\n\n\ndef validate_citations(report: str, reg: list[dict])\
+          \ -> dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
           \ report stats.\n\n    Checks citation integrity only - not whether the\
           \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
           \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
-          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
-          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \        nums = [int(n) for n in re.findall(r\"\\d+\", m.group(1))]\n  \
+          \      keep = [n for n in nums if n in valid]\n        invalid.update(n\
           \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
           \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
@@ -651,58 +527,30 @@ workflow:
           \        lists.insert(0, pick_results(wiki or '{\"results\": []}', k=1))\n\
           \    except Exception:\n        pass\n    reg = build_registry(lists)\n\
           \    return {\"registry\": json.dumps(reg), \"sources_text\": format_sources(reg)}\n"
-        code_language: python3
-        desc: ''
-        outputs:
-          registry:
-            children: null
-            type: string
-          sources_text:
-            children: null
-            type: string
-        selected: false
-        title: Build source registry
-        type: code
-        variables:
-        - value_selector:
-          - iter
-          - output
-          variable: per_q
-        - value_selector:
-          - wiki
-          - body
-          variable: wiki
-      height: 90
-      id: registry
+    - id: writer
+      type: custom
       position:
-        x: 1650
+        x: 1950
         y: 300
       positionAbsolute:
-        x: 1650
+        x: 1950
         y: 300
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        context:
-          enabled: false
-          variable_selector: []
+      data:
         desc: ''
-        memory: null
-        model:
-          completion_params:
-            num_ctx: 16384
-            temperature: 0.2
-          mode: chat
-          name: qwen2.5:7b
-          provider: langgenius/ollama/ollama
+        selected: false
+        type: llm
+        title: Writer
+        model: *id001
         prompt_template:
         - role: system
           text: You write concise, factual research briefs in Markdown. Use ONLY the
-            numbered sources provided. Cite every factual sentence with [n] matching
-            a source number. Never invent sources, URLs or numbers. If sources are
-            thin, say so.
+            numbered sources provided. Cite every factual sentence with the bare source
+            number in brackets, e.g. [3] or [2, 5]. Never invent sources, URLs or
+            numbers. If sources are thin, say so.
         - role: user
           text: 'Topic: {{#start.topic#}}
 
@@ -714,24 +562,46 @@ workflow:
 
             Write the report with sections: ''# <title>'', ''## Summary'', ''## Findings'',
             ''## Open questions''. Do not write a References section.'
-        selected: false
-        title: Writer
-        type: llm
+        context:
+          enabled: false
+          variable_selector: []
         vision:
           enabled: false
-      height: 90
-      id: writer
+        memory: null
+    - id: validate
+      type: custom
       position:
-        x: 1950
+        x: 2250
         y: 300
       positionAbsolute:
-        x: 1950
+        x: 2250
         y: 300
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-    - data:
+      data:
+        desc: ''
+        selected: false
+        type: code
+        title: Validate citations
+        code_language: python3
+        variables:
+        - variable: report
+          value_selector:
+          - writer
+          - text
+        - variable: registry
+          value_selector:
+          - registry
+          - registry
+        outputs:
+          report:
+            type: string
+            children: null
+          stats:
+            type: string
+            children: null
         code: "\"\"\"Pure-Python logic used by the Dify Code nodes.\n\nEach public\
           \ function mirrors one Code node. Keep them dependency-free so the\nsame\
           \ body can be pasted into Dify's sandbox and unit-tested here.\n\"\"\"\n\
@@ -772,14 +642,15 @@ workflow:
           \ index[key], **r})\n    return reg\n\n\ndef format_sources(reg: list[dict],\
           \ max_chars: int = 600) -> str:\n    return \"\\n\".join(f\"[{s['id']}]\
           \ {s['title']} - {s['url']}\\n{s['snippet'][:max_chars]}\"\n           \
-          \          for s in reg)\n\n\nCITE = re.compile(r\"\\[(\\d+(?:\\s*,\\s*\\\
-          d+)*)\\]\")\n\n\ndef validate_citations(report: str, reg: list[dict]) ->\
-          \ dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
+          \          for s in reg)\n\n\nREF = r\"(?:n|source|src|#)?\\s*\\d+\"\nCITE\
+          \ = re.compile(r\"\\[(\" + REF + r\"(?:\\s*[,;]\\s*\" + REF + r\")*)\\]\"\
+          , re.IGNORECASE)\n\n\ndef validate_citations(report: str, reg: list[dict])\
+          \ -> dict:\n    \"\"\"Drop citations to unknown sources, rebuild References,\
           \ report stats.\n\n    Checks citation integrity only - not whether the\
           \ claim is supported.\n    \"\"\"\n    valid = {s[\"id\"] for s in reg}\n\
           \    used, invalid = set(), set()\n\n    def fix(m: re.Match) -> str:\n\
-          \        nums = [int(n) for n in re.split(r\"\\s*,\\s*\", m.group(1))]\n\
-          \        keep = [n for n in nums if n in valid]\n        invalid.update(n\
+          \        nums = [int(n) for n in re.findall(r\"\\d+\", m.group(1))]\n  \
+          \      keep = [n for n in nums if n in valid]\n        invalid.update(n\
           \ for n in nums if n not in valid)\n        used.update(keep)\n        return\
           \ \"[\" + \", \".join(map(str, keep)) + \"]\" if keep else \"\"\n\n    body\
           \ = re.split(r\"\\n#+\\s*References\\b\", report, maxsplit=1, flags=re.IGNORECASE)[0]\n\
@@ -795,65 +666,170 @@ workflow:
           \n\ndef main(report: str, registry: str) -> dict:\n    res = validate_citations(report\
           \ or \"\", json.loads(registry or \"[]\"))\n    out = res.pop(\"report\"\
           )\n    return {\"report\": out, \"stats\": json.dumps(res)}\n"
-        code_language: python3
-        desc: ''
-        outputs:
-          report:
-            children: null
-            type: string
-          stats:
-            children: null
-            type: string
-        selected: false
-        title: Validate citations
-        type: code
-        variables:
-        - value_selector:
-          - writer
-          - text
-          variable: report
-        - value_selector:
-          - registry
-          - registry
-          variable: registry
-      height: 90
-      id: validate
+    - id: end
+      type: custom
       position:
-        x: 2250
+        x: 2550
         y: 300
       positionAbsolute:
-        x: 2250
+        x: 2550
         y: 300
+      width: 244
+      height: 90
       sourcePosition: right
       targetPosition: left
-      type: custom
-      width: 244
-    - data:
+      data:
         desc: ''
+        selected: false
+        type: end
+        title: End
         outputs:
-        - value_selector:
+        - variable: report
+          value_selector:
           - validate
           - report
           value_type: string
-          variable: report
-        - value_selector:
+        - variable: stats
+          value_selector:
           - validate
           - stats
           value_type: string
-          variable: stats
-        selected: false
-        title: End
-        type: end
-      height: 90
-      id: end
-      position:
-        x: 2550
-        y: 300
-      positionAbsolute:
-        x: 2550
-        y: 300
-      sourcePosition: right
-      targetPosition: left
+    edges:
+    - id: start-planner
+      source: start
+      target: planner
+      sourceHandle: source
+      targetHandle: target
       type: custom
-      width: 244
-  rag_pipeline_variables: []
+      zIndex: 0
+      data:
+        sourceType: start
+        targetType: llm
+        isInIteration: false
+        isInLoop: false
+    - id: start-wiki
+      source: start
+      target: wiki
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: start
+        targetType: http-request
+        isInIteration: false
+        isInLoop: false
+    - id: planner-parse
+      source: planner
+      target: parse
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: llm
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: parse-iter
+      source: parse
+      target: iter
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: iteration
+        isInIteration: false
+        isInLoop: false
+    - id: iterstart-search
+      source: iterstart
+      target: search
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+      data:
+        sourceType: iteration-start
+        targetType: http-request
+        isInIteration: true
+        isInLoop: false
+        iteration_id: iter
+    - id: search-pick
+      source: search
+      target: pick
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+      data:
+        sourceType: http-request
+        targetType: code
+        isInIteration: true
+        isInLoop: false
+        iteration_id: iter
+    - id: iter-registry
+      source: iter
+      target: registry
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: iteration
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: wiki-registry
+      source: wiki
+      target: registry
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: http-request
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: registry-writer
+      source: registry
+      target: writer
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: llm
+        isInIteration: false
+        isInLoop: false
+    - id: writer-validate
+      source: writer
+      target: validate
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: llm
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: validate-end
+      source: validate
+      target: end
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: end
+        isInIteration: false
+        isInLoop: false
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.6

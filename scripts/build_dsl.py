@@ -139,7 +139,7 @@ def main(per_q: list, wiki: str) -> dict:
     node("writer", llm(
         "Writer",
         "You write concise, factual research briefs in Markdown. Use ONLY the numbered "
-        "sources provided. Cite every factual sentence with [n] matching a source number. "
+        "sources provided. Cite every factual sentence with the bare source number in brackets, e.g. [3] or [2, 5]. "
         "Never invent sources, URLs or numbers. If sources are thin, say so.",
         "Topic: {{#start.topic#}}\n\nSources:\n{{#registry.sources_text#}}\n\nWrite the "
         "report with sections: '# <title>', '## Summary', '## Findings', "

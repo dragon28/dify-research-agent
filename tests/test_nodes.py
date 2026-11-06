@@ -61,3 +61,10 @@ def test_uncited_summary_under_heading_is_counted():
 def test_zero_sources_strips_everything():
     res = validate_citations("# T\n\nMade up [1].", [])
     assert res["sources_total"] == 0 and res["invalid_removed"] == [1]
+
+
+def test_model_citation_variants_are_normalized():
+    reg = [{"id": 4, "title": "D", "url": "https://d.com", "snippet": ""},
+           {"id": 7, "title": "G", "url": "https://g.com", "snippet": ""}]
+    res = validate_citations("- Tool [n4, n7]: x.\n- Other [Source 7].", reg)
+    assert res["cited"] == [4, 7] and "[4, 7]" in res["report"] and "[7]" in res["report"]

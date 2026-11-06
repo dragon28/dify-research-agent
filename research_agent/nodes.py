@@ -77,7 +77,8 @@ def format_sources(reg: list[dict], max_chars: int = 600) -> str:
                      for s in reg)
 
 
-CITE = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
+REF = r"(?:n|source|src|#)?\s*\d+"
+CITE = re.compile(r"\[(" + REF + r"(?:\s*[,;]\s*" + REF + r")*)\]", re.IGNORECASE)
 
 
 def validate_citations(report: str, reg: list[dict]) -> dict:
@@ -89,7 +90,7 @@ def validate_citations(report: str, reg: list[dict]) -> dict:
     used, invalid = set(), set()
 
     def fix(m: re.Match) -> str:
-        nums = [int(n) for n in re.split(r"\s*,\s*", m.group(1))]
+        nums = [int(n) for n in re.findall(r"\d+", m.group(1))]
         keep = [n for n in nums if n in valid]
         invalid.update(n for n in nums if n not in valid)
         used.update(keep)
