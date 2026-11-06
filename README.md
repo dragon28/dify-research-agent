@@ -1,11 +1,14 @@
 # Dify Research Agent
 
+> Status: the Code-node logic is unit-tested in CI. The full Dify run and the exported
+> workflow file are not done yet.
+
 A multi-step research agent built on Dify. It plans sub-questions, searches with a
 self-hosted SearXNG instance, merges the sources, and writes a cited Markdown report.
 A final step checks that every citation points to a real source.
 
-The whole stack is free and open source: Dify + SearXNG (search) + Ollama (local LLM).
-No paid APIs and no API keys.
+Self-hosted stack: Dify + SearXNG (search) + Ollama (local LLM). It uses no paid search or
+model APIs. The only key is the Dify app key that your own Dify instance generates.
 
 ```mermaid
 flowchart LR
@@ -25,7 +28,9 @@ flowchart LR
 4. Check search works: `make searx-check` (it should return JSON).
 5. In Dify, add the Ollama provider (http://ollama:11434), build the workflow from
    dify/WORKFLOW.md (or import research-agent.yml once it is exported), and publish it.
-6. Put the API key in .env, then run `make report TOPIC="..."`.
+6. Run `export $(cat .env | xargs)` (after filling in .env), then `make report TOPIC="..."`.
+
+Note: the compose volume path assumes dify/ and dify-research-agent/ are sibling folders.
 
 ## Tests
 
