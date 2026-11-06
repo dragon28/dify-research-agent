@@ -1,0 +1,18 @@
+# Copy into dify/docker/ next to Dify's own docker-compose.yaml.
+# Adds SearXNG + Ollama on Dify's default network (no ports exposed publicly).
+services:
+  searxng:
+    image: searxng/searxng:latest   # pin a tag once tested
+    environment:
+      - SEARXNG_SECRET=${SEARXNG_SECRET:-please-change}
+    volumes:
+      - ../../dify-research-agent/infra/searxng:/etc/searxng:rw
+    ports: ["127.0.0.1:8080:8080"]
+    restart: unless-stopped
+  ollama:
+    image: ollama/ollama:latest
+    volumes: [ollama:/root/.ollama]
+    ports: ["127.0.0.1:11434:11434"]
+    restart: unless-stopped
+volumes:
+  ollama:

@@ -1,0 +1,10 @@
+use_default_settings: true
+server:
+  secret_key: "change-me"   # replaced by SEARXNG_SECRET env in compose
+  limiter: false             # private instance on the Docker network only
+search:
+  formats: [html, json]      # json is required, otherwise Dify gets 403
+  safe_search: 0
+engines:
+  - name: google
+    disabled: true           # often blocks automated traffic
