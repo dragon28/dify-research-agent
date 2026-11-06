@@ -6,7 +6,7 @@ services:
     environment:
       - SEARXNG_SECRET=${SEARXNG_SECRET:-please-change}
     volumes:
-      - ../../dify-research-agent/infra/searxng:/etc/searxng:rw
+      - ${RESEARCH_AGENT_DIR:-../../dify-research-agent}/infra/searxng:/etc/searxng:rw,Z
     ports: ["127.0.0.1:8080:8080"]
     restart: unless-stopped
   ollama:

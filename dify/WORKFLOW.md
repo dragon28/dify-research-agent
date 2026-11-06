@@ -1,6 +1,6 @@
 # Dify workflow: Deep Research (build spec)
 
-Status: template, not yet a verified export. After building it in Dify,
+Status: template, not yet a verified export. Target Dify version: 1.19.0. After building it in Dify,
 export DSL to dify/research-agent.yml and record the Dify version here.
 
 Inputs: topic (text), depth (number, 3-5)
