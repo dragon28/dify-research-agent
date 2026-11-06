@@ -1,38 +1,32 @@
-# Open-source tools for nanopore sequencing analysis
+# Open-source Tools for Nanopore Sequencing Analysis
 
 ## Summary
-Nanopore sequencing is a promising technology for long-read sequencing, but it faces challenges such as high error rates and rapid DNA strand movement through the nanopore. This report highlights open-source tools that can be used for nanopore sequencing analysis, focusing on basecalling, error correction, and data processing.
+Nanopore sequencing is a powerful technique for direct DNA base detection, offering high portability and the ability to detect DNA modifications. However, the rapid movement of DNA through the nanopore and the associated background noise make data processing challenging. Several open-source tools are available for basecalling and analysis, including Nanocall and Openfish, which provide alternatives to proprietary software.
 
 ## Findings
 ### Basecalling Tools
-- **Dorado** [4, 7]: A state-of-the-art basecalling software for Oxford Nanopore Technology (ONT) platforms, supporting both fast5 and pod5 formats.
-- **Nanocall** [7]: An open-source basecaller for Oxford Nanopore sequencing data, written in C++.
-- **EPI2ME** and **What's In My Pot**: Open-source tools that offer flexibility but require significant computational expertise [5].
-
-### Mapping and Signal Processing Tools
-- **Sigmap**: A nanopore raw signal mapper tool for real-time selective sequencing [6].
-- **UNCALLED**: An open-source mapper that rapidly matches streaming nanopore current signals [6].
+- **Nanocall** [n4, n7, n8]: An open-source basecaller for Oxford Nanopore sequencing data, written in C++.
+- **Bonito** [n4]: A PyTorch-based basecaller for Oxford Nanopore reads, also in research phase.
+- **Openfish** [n6]: An open-source GPU-accelerated nanopore basecaller decoding library.
+- **Slorado** [n6]: A fully open-source basecalling framework that supports both DNA and RNA with equivalent accuracy to Dorado.
 
 ### Data Analysis Tools
-- **Megalodon**: Takes raw nanopore reads as input and produces basecalls, reference mappings, sequence variant calls, and modified base calls [9].
-- **Tombo**: A suite of tools for identifying modified nucleotides from nanopore sequencing data [9].
+- **Megalodon** [n9]: Takes raw nanopore reads as input and produces various outputs, including basecalls, reference mappings, and sequence variant calls.
+- **Tombo** [n9]: A suite of tools for identifying modified nucleotides from nanopore sequencing data.
 
-### Bioinformatics Challenges
-- Nanopore sequencing faces distinct implementation hurdles, particularly in bioinformatics, where open-source tools like EPI2ME and What's In My Pot offer flexibility but require significant computational expertise [5].
+### Challenges and Landscape
+- The rapid changes in equipment, chemistry, and software make it difficult to fully characterize errors in nanopore sequencing [n10, n12].
+- **NanoOK** [n10]: An open-source software for comparing sets of references versus reads, which helps in error correction.
 
-### Error Correction and Signal Decoding
-- **BaseNet**: A transformer-based toolkit for nanopore sequencing signal decoding, providing state-of-the-art algorithms [8].
+### Performance and Comparison
+- Numerous tools have been developed to leverage the direct detection of DNA base modifications by Oxford Nanopore sequencing [n5].
+- Open-source tools like Openfish and Slorado remove the hardware lock-in that currently limits high-performance nanopore basecalling [n6].
 
 ## Open questions
-- How can open-source tools be further improved to address the bioinformatics challenges associated with nanopore sequencing?
-- What are the best practices for integrating open-source tools into clinical workflows to ensure accuracy and ease of use?
-- How can the high error rates in nanopore sequencing be effectively mitigated using these tools and others?
+- How do the performance and accuracy of open-source tools like Nanocall and Bonito compare to proprietary tools such as Guppy?
+- What are the specific challenges in characterizing errors in nanopore sequencing, and how can open-source tools like NanoOK address these challenges?
+- How can the rapid changes in nanopore technology be managed to ensure consistent and reliable data analysis?
 
 ## References
 
-4. [Unlocking the full potential of nanopore sequencing: tips, tricks, ...](https://academic.oup.com/nar/article/54/3/gkag023/8454528)
-5. [Current status and prospects of nanopore sequencing technology in ...](https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2026.1843102/full)
-6. [Portable nanopore-sequencing technology: Trends in development ...](https://pmc.ncbi.nlm.nih.gov/articles/PMC9929578/)
-7. [GitHub - GoekeLab/awesome-nanopore: A curated list of awesome ...](https://github.com/GoekeLab/awesome-nanopore)
-8. [A transformer-based toolkit for nanopore sequencing signal decoding](https://www.sciencedirect.com/science/article/pii/S2001037024003040)
-9. [GitHub - seanaller/nanoporeBioinformatics: Collection of ...](https://github.com/seanaller/nanoporeBioinformatics)
+_No sources cited._
