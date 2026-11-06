@@ -31,8 +31,8 @@ throwaway admin, imports [dify/research-agent.yml](dify/research-agent.yml), wri
 opens a PR with them and shuts down. Merging the PR publishes the gallery at
 https://dragon28.github.io/dify-research-agent/.
 
-On CPU, one report takes about 4 minutes (235-242 s with qwen2.5:7b) and a full run takes about
-20 minutes, including the image and model downloads. Visitors can read the reports but cannot
+On CPU, one report takes about 4 minutes (235-242 s with qwen2.5:7b) and a full run with one topic took about
+10 minutes, including the image and model downloads. Visitors can read the reports but cannot
 start runs. There is no always-on Dify editor or chat.
 
 ## Run locally (optional, for development)
