@@ -23,7 +23,19 @@ flowchart LR
   W --> R --> L[Writer LLM] --> V[Citation validator] --> O[Report.md]
 ```
 
-## Run
+## Where it runs
+
+Nothing runs on my computer. GitHub Actions ([reports.yml](.github/workflows/reports.yml), manual trigger)
+starts Dify 1.19.0, SearXNG and Ollama on a free `ubuntu-latest` runner. It creates a random
+throwaway admin, imports [dify/research-agent.yml](dify/research-agent.yml), writes the reports,
+opens a PR with them and shuts down. Merging the PR publishes the gallery at
+https://dragon28.github.io/dify-research-agent/.
+
+On CPU, one report takes about 4 minutes (235-242 s with qwen2.5:7b) and a full run takes about
+20 minutes, including the image and model downloads. Visitors can read the reports but cannot
+start runs. There is no always-on Dify editor or chat.
+
+## Run locally (optional, for development)
 
 1. Install Dify with Docker (github.com/langgenius/dify, docker/ folder).
 2. Copy infra/docker-compose.override.yml into dify/docker/, then run `docker compose up -d`.
